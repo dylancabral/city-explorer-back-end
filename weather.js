@@ -1,13 +1,12 @@
 const axios = require('axios');
 
-let getWeather = async (request, response, next) => {
+async function getWeather(req, res, next) {
     try {
-        let latitude = request.query.queriedLat
-        let longitude = request.query.queriedLon
-        console.log(`https://api.weatherbit.io/v2.0/forecast/daily?lat=${latitude}&lon=${longitude}&key=${process.env.WEATHER_API_KEY}&units=I&days=3`)
+        let latitude = req.query.queriedLat
+        let longitude = req.query.queriedlon
         let weatherData = await axios.get(`https://api.weatherbit.io/v2.0/forecast/daily?lat=${latitude}&lon=${longitude}&key=${process.env.WEATHER_API_KEY}&units=I&days=3`);
         let forecast = weatherData.data.data.map(obj => new forecast(obj));
-        response.send(forecast);
+        res.send(forecast);
     }
     catch (error) {
         Promise.resolve().then(() => {
