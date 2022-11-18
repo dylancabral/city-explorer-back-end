@@ -25,11 +25,22 @@ app.get('/', (request,response) =>{
     response.status(200).send('home');
 });
 
+app.get('/weather', getWeather);
+
+app.get('/movies', getMovies)
+
+app.get('*', (request,response) =>{
+    response.status(404).send('error');
+});
+
 //create a basic default route
 //app,get() takes in a paramater or a url in quotes and callback function
 
 //error
 //handle any errors
+app.use((error, req, res, next) => {
+    res.status(500).send(error.message);
+  });
 
 //listen
 //start the server
