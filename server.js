@@ -1,13 +1,18 @@
 'use strict';
+require('dotenv').config();
 console.log('our first server');
+
 
 //REQUIRE
 //in our servers we have to use require instead of import
 //here we will list the requirments for a server
 const express = require('express');
 const cors= require('cors');
+let getWeather = require('./weather.js');
+let getMovies = require('./movies.js');
+
+
 //we need to bring in our env file
-require('dotenv').config();
 
 
 //once we have required something we have to use it
