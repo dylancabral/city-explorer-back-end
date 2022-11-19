@@ -7,9 +7,10 @@ console.log('our first server');
 //in our servers we have to use require instead of import
 //here we will list the requirments for a server
 const express = require('express');
-const cors= require('cors');
-let getWeather = require('./weather.js');
-let getMovies = require('./movies.js');
+const cors = require('cors');
+const weather = require('./modules/weather.js');
+const movie = require('./modules/movies.js');
+
 
 
 //we need to bring in our env file
@@ -26,29 +27,49 @@ const PORT = process.env.PORT || 3002;
 
 //ROUTES
 //this is where we will write handlers for our endpoints 
-app.get('/', (request,response) =>{
-    response.status(200).send('home');
+app.get('/', (request, response) => {
+  response.status(200).send('home');
 });
 
-app.get('/weather', getWeather);
+app.get('/weather', weatherHandler);
 
-app.get('/movies', getMovies)
+app.get('/movies', movieHandler);
 
-app.get('*', (request,response) =>{
-    response.status(404).send('error');
-});
+// app.get('*', (request, response) => {
+//   response.status(404).send('error');
+// });
 
+function weatherHandler(request, response) {
+  const { latitude, longitude } = request.query;
+  weather(latitude, longitude)
+    .then(summary => response.send(summary))
+    .catch((error) => {
+      console.error(error);
+      response.status(500).send('error, server is broken');
+    });
+}
+
+function movieHandler(request, response) {
+  const location = request.query.city;
+  movie(location)
+    .then(movieSummary => response.send(movieSummary))
+    .catch((error) => {
+      console.error(error);
+      response.status(500).send('error, server is broken');
+    });
+}
+
+app.listen(PORT, () => console.log(`listening on port ${PORT}`));
 //create a basic default route
 //app,get() takes in a paramater or a url in quotes and callback function
 
 //error
 //handle any errors
-app.use((error, req, res, next) => {
-    res.status(500).send(error.message);
-  });
+// app.use((error, req, res, next) => {
+//   res.status(500).send(error.message);
+// });
 
 //listen
 //start the server
 
 // listen is an express method
-app.listen(PORT,() => console.log(`listening on port ${PORT}`));
