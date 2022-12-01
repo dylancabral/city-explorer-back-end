@@ -6,7 +6,7 @@ module.exports = getWeather;
 
 function getWeather(latitude,longitude) {
   const key = 'weather-' + latitude + longitude ;
-  const url = `https://api.weatherbit.io/v2.0/forecast/daily/?key=${process.env.WEATHER_API_KEY}&land=en&lat=${latitude}&lon={longitude}&days=3`;
+  const url = `https://api.weatherbit.io/v2.0/forecast/daily/?key=${process.env.WEATHER_API_KEY}&land=en&lat=${latitude}&lon=${longitude}&days=3`;
 
   if (!cache[key]) {
     cache[key] = {};
@@ -20,10 +20,10 @@ function parseWeatherData(weatherData) {
 
 
   try {
-    const weather = weatherData.data.map(day => {
+    const weatherForecast = weatherData.data.map(day => {
       return new Weather(day);
     });
-    return Promise.resolve(weather);
+    return Promise.resolve(weatherForecast);
   } catch (e) {
     return Promise.reject(e);
   }
