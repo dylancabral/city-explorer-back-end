@@ -1,29 +1,34 @@
 
 const axios = require('axios');
 let cache = require('./cache');
-module.exports = getMovies;
+
 
 
 function getMovies(location) {
+  console.log('going to the Movies')
   const key = 'movies-' + location;
-  const url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_API_KEY}&query=${location}`;
+  const url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_API_KEY}&query=${location}&language=en-US&page=1`;
 
-  if (!cache[key]) {
+  if (!cache[key] && Date.now() -cache[key].timestamp < 50000) {
+    console.log('movie cache hit');
+  }else{
     cache[key] = {};
     cache[key].timestamp = Date.now();
-    cache[key].data = axios.get(url)
-      .then(data => parseMoviesData(data.data));
+    cache[key].data = axios
+    .get(url)
+    .then(movieRes => parseMoviesData(movieRes.data));
   }
+  console.log('movie cache', cache);
   return cache[key].data;
 }
-function parseMoviesData(data) {
 
+function parseMoviesData(movieRes) {
 
   try {
-    const movies = data.results.map(movie => {
+    const moviesArray = movieRes.results.map(movie => {
       return new Movie(movie);
     });
-    return Promise.resolve(movies);
+    return Promise.resolve(moviesArray);
   } catch (e) {
     return Promise.reject(e);
   }
@@ -42,11 +47,11 @@ function parseMoviesData(data) {
 };
 */
 class Movie {
-  constructor(movie) {
-    this.title = movie.title;
-    this.imageUrl = 'https://image.tmdb.org/t/p/w500' + movie.poster_path;
-    this.overview = movie.overview;
-    this.release_date = movie.release_date;
+  constructor(movieObj) {
+    this.title = movieObj.title;
+    this.imageUrl = `https://image.tmdb.org/t/p/w500${movieObj.poster_path}`;
+    this.overview = movieObj.overview;
+    this.release_date = movieObj.release_date;
   }
 }
-
+module.exports = getMovies;
