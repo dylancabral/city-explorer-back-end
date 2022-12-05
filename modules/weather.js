@@ -1,41 +1,49 @@
 'use strict';
 const axios = require('axios');
 let cache = require('./cache');
-module.exports = getWeather;
+module.exports = getForecast;
 
 
-function getWeather(latitude,longitude) {
-  const key = 'weather-' + latitude + longitude ;
-  const url = `https://api.weatherbit.io/v2.0/forecast/daily/?key=${process.env.WEATHER_API_KEY}&land=en&lat=${latitude}&lon=${longitude}&days=3`;
+function getForecast(lat,lon) {
+  const key = 'weather-' + lat + lon ;
+  const url = `https://api.weatherbit.io/v2.0/forecast/daily/?days=3&units=I&land=en&lat=${lat}&lon${lon}&key=${process.env.WEATHER_API_KEY}`;
 
-  if (!cache[key]) {
+  if (!cache[key] && Date.now() - cache[key].timestamp < 50000) {
+    console.log('weather cache hit!', cache[key]);
+  } else{
     cache[key] = {};
     cache[key].timestamp = Date.now();
-    cache[key].data = axios.get(url)
-      .then(response => parseWeatherData(response.data));
+    cache[key].data = axios
+    .get(url)
+    .then(weatherRes => parseWeatherData(weatherRes.data));
   }
   return cache[key].data;
 }
+
 function parseWeatherData(weatherData) {
-
-
   try {
-    const weatherForecast = weatherData.data.map(day => {
-      return new Weather(day);
+    const weatherForecastArray = weatherRes.data.map(forecast => {
+      return new Weather(forecast);
     });
-    return Promise.resolve(weatherForecast);
-  } catch (e) {
-    return Promise.reject(e);
+    return Promise.resolve(weatherForecastArray);
+  } catch (error) {
+    return Promise.reject(error);
   }
 }
 class Weather {
-  constructor(day) {
-    this.date = day.datetime;
-    this.description = day.weather.description;
-    this.max_temp = day.max_temp;
-    this.min_temp = day.min_temp;
-    this.precip = day.precip;
-    this.timestamp = Date.now();
+  constructor(dayObj) {
+    this.date = dayObj.datetime;
+    this.description = 
+    'A high of' + 
+    dayObj.high_temp +
+    ', and a Low of'
+    dayObj.low_temp +
+    ' with' +
+    dayObj.forecast.description.toLowerCase();
+    // this.max_temp = dayObj.max_temp;
+    // this.min_temp = dayObj.min_temp;
+    // this.precip = dayObj.precip;
+    // this.timestamp = Date.now();
   }
 }
 // async function getWeather(req, res, next) {

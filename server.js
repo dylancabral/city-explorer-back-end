@@ -31,29 +31,29 @@ app.get('/', (request, response) => {
   response.status(200).send('home');
 });
 
-app.get('/weather', weatherHandler);
+app.get('/weather', getForecast);
 
-app.get('/movies', movieHandler);
+app.get('/movies', getMovies);
 
 // app.get('*', (request, response) => {
 //   response.status(404).send('error');
 // });
 
-function weatherHandler(request, response) {
-  const { latitude, longitude } = request.query;
-  weather(latitude, longitude)
-    .then(summary => response.send(summary))
+function getForecast(request, response) {
+  const { lat, lon } = request.query;
+  weather(lat, lon)
+    .then(weatherSummary => response.send(weatherSummary))
     .catch((error) => {
       console.error(error);
       response.status(500).send('error, server is broken');
     });
 }
 
-function movieHandler(request, response) {
-  const location = request.query.city;
+function getMovies(request, response) {
+  const location = request.query.location;
   movie(location)
     .then(movieSummary => response.send(movieSummary))
-    .catch((error) => {
+    .catch(error => {
       console.error(error);
       response.status(500).send('error, server is broken');
     });
