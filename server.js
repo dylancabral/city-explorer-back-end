@@ -23,7 +23,7 @@ app.listen(PORT, () => console.log(`listening on port ${PORT}`));
 
 function forecastHandler(request, response) {
   const { lat, lon } = request.query;
-  console.log('found the weather', lat, lon);
+  // console.log('found the weather', lat, lon);
   weather(lat, lon)
     .then(weatherSummary => response.send(weatherSummary))
     .catch(error => {
